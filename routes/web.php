@@ -185,6 +185,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::prefix('reports')->group(function () {
             Route::get('/outliers', [ReportController::class, 'outliers']);
+            Route::get('/classifications', [ReportController::class, 'classifications']);
             Route::get('/classify/{employee}', [ReportController::class, 'classify']);
             Route::get('/clusters', [ReportController::class, 'clusters']);
         });

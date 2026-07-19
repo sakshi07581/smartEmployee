@@ -3,6 +3,14 @@
 @section('content')
 <div class="shadow p-4 d-flex justify-content-between align-items-center ">
     <h4 class="text-uppercase"> Task List</h4>
+    <a
+    href ={{ url('Task/createTask') }}
+        type="button"
+        class="btn btn-dark"
+    >
+        Create Task
+    </a>
+
 </div>
 <div class="my-5 py-5">
 

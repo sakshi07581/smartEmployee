@@ -7,9 +7,11 @@ use App\Algorithms\KNN;
 use App\Algorithms\ZScore;
 use App\Models\Employee;
 use App\Services\EmployeeMetricsService;
+use App\Services\KMeansService;
+use App\Services\KNNService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Contracts\View\View;
 class ReportController extends Controller
 {
     public function __construct(protected EmployeeMetricsService $metrics) {}
@@ -44,98 +46,139 @@ class ReportController extends Controller
      * GET /reports/outliers?field=1&month=2026-07&threshold=3.0
      * field index: 0=attendance_rate, 1=avg_working_hours, 2=salary
      */
-    public function outliers(Request $request): JsonResponse
-    {
-        $fieldIndex = (int) $request->query('field', 1);
-        $threshold = (float) $request->query('threshold', 3.0);
-        $month = $request->query('month');
 
-        $rows = $this->metrics->buildFeatures($month);
-        $values = array_map(fn($r) => $r['features'][$fieldIndex], $rows);
+public function outliers(Request $request): View
+{
+    $fieldIndex = (int) $request->query('field', 1);
+    $threshold = (float) $request->query('threshold', 3.0);
+    $month = $request->query('month');
 
-        $outliers = ZScore::detectOutliers($values, $threshold);
+    $rows = $this->metrics->buildFeatures($month);
+    $values = array_map(fn($r) => $r['features'][$fieldIndex], $rows);
 
-        $result = [];
-        foreach ($outliers as $i => $data) {
-            $result[] = [
-                'id' => $rows[$i]['id'],
-                'name' => $rows[$i]['name'],
-                'value' => $data['value'],
-                'z' => round($data['z'], 3),
-            ];
-        }
+    $outliers = ZScore::detectOutliers($values, $threshold);
 
-        return response()->json(['field_index' => $fieldIndex, 'threshold' => $threshold, 'outliers' => $result]);
+    $result = [];
+    foreach ($outliers as $i => $data) {
+        $result[] = [
+            'id' => $rows[$i]['id'],
+            'name' => $rows[$i]['name'],
+            'value' => $data['value'],
+            'z' => round($data['z'], 3),
+        ];
     }
+
+    return view('admin.pages.Reports.outliers', [
+        'field index' => $fieldIndex,
+        'threshold' => $threshold,
+        'outliers' => $result
+    ]);
+}
+
 
     /**
      * GET /reports/classify/{employee}?k=3&month=2026-07
      * Requires a `performance_label` column somewhere (not in your migrations yet — flag below).
      */
-    public function classify(Request $request, Employee $employee): JsonResponse
-    {
-        $k = (int) $request->query('k', 3);
-        $month = $request->query('month');
+    public function classifications()
+{
+    return view('admin.pages.Reports.classifications', [
+        'employees' => Employee::orderBy('name')->get()
+    ]);
+}
+    public function classify(
+    Request $request,
+    Employee $employee,
+    KNNService $knnService
+): View {
 
-        $rows = $this->metrics->buildFeatures($month);
+    $month = $request->query('month');
+    $k = (int) $request->query('k', 3);
 
-        $labels = Employee::query()->whereNotNull('performance_label')->pluck('performance_label', 'id');
+    $rows = $this->metrics->buildFeatures($month);
 
-        $target = null;
-        $dataset = [];
-        foreach ($rows as $r) {
-            if ($r['id'] === $employee->id) {
-                $target = $r['features'];
-                continue;
-            }
-            if (isset($labels[$r['id']])) {
-                $dataset[] = ['features' => $r['features'], 'label' => $labels[$r['id']]];
-            }
+    $labels = Employee::pluck('salary_structure_id', 'id');
+
+    $dataset = [];
+    $target = null;
+
+    foreach ($rows as $row) {
+
+        $features = array_values($row['features']);
+
+        if ($row['id'] == $employee->id) {
+            $target = $features;
+            continue;
         }
 
-        $knn = new KNN();
-        $knn->fit($dataset);
-        $prediction = $target ? $knn->predict($target, $k) : null;
+        if (!empty($labels[$row['id']])) {
 
-        return response()->json([
-            'id' => $employee->id,
-            'name' => $employee->name,
-            'predicted_label' => $prediction,
-            'k' => $k,
-        ]);
+            $dataset[] = [
+                'features' => $features,
+                'label' => $labels[$row['id']],
+            ];
+        }
     }
+
+    $prediction = $knnService->predict(
+        $dataset,
+        $target,
+        $k
+    );
+
+   return view('admin.pages.Reports.classifications', [
+    'id' => $employee->id,
+    'name' => $employee->name,
+    'predicted_label' => $prediction,
+    'k' => $k,
+]);
+}
 
     /**
      * GET /reports/clusters?k=3&month=2026-07
      */
-    public function clusters(Request $request): JsonResponse
-    {
-        $k = (int) $request->query('k', 3);
-        $month = $request->query('month');
+   public function clusters(
+    Request $request,
+    KMeansService $kMeansService
+): View {
 
-        $rows = $this->metrics->buildFeatures($month);
-        if (empty($rows)) {
-            return response()->json(['centroids' => [], 'clusters' => []]);
-        }
+    $month = $request->query('month');
+    $k = (int) $request->query('k', 3);
 
-        $k = min($k, count($rows));
+    $rows = $this->metrics->buildFeatures($month);
 
-        $normalized = $this->normalize($rows);
-        $km = new KMeans();
-        $result = $km->fit(array_column($normalized, 'features'), $k);
+    // if (empty($rows)) {
+    //     return response()->json([
+    //         'k' => 0,
+    //         'centroids' => [],
+    //         'clusters' => [],
+    //     ]);
+    // }
 
-        $clusters = [];
-        foreach ($result['labels'] as $i => $label) {
-            $clusters[$label][] = [
-                'id' => $rows[$i]['id'],
-                'name' => $rows[$i]['name'],
-            ];
-        }
+    $dataset = array_map(function ($row) {
+        return array_values($row['features']);
+    }, $rows);
 
-        return response()->json([
-            'k' => $k,
-            'centroids' => $result['centroids'],
-            'clusters' => $clusters,
-        ]);
+    $k = min($k, count($dataset));
+
+    $result = $kMeansService->fitFromDataset($dataset, $k);
+
+    $clusters = [];
+
+    foreach ($result['labels'] as $index => $cluster) {
+
+        $clusters[$cluster][] = [
+            'id' => $rows[$index]['id'],
+            'name' => $rows[$index]['name'],
+            'features' => $rows[$index]['features'],
+        ];
     }
+
+   return view('admin.pages.Reports.clusters', [
+    'k' => $k,
+    'inertia' => round($result['inertia'], 2),
+    'centroids' => $result['centroids'],
+    'clusters' => $clusters,
+]);
+}
 }

@@ -91,6 +91,12 @@
             /* Semi-transparent background */
             z-index: 99999;
         }
+
+        [type=button], [type=reset], [type=submit], button {
+    -webkit-appearance: button;
+    background-color: #000000 !important;
+    background-image: none;
+}
     </style>
     <script>
         function display_ct7() {
@@ -293,8 +299,9 @@
     </script>
 
     @stack('yourJsCode')
-    </script>
+
     @yield('customJs')
+    @stack('scripts')
 </body>
 
 </html>
