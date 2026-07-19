@@ -300,7 +300,7 @@
 
     @stack('yourJsCode')
 
-    @yield('customJs')
+
     @stack('scripts')
 </body>
 

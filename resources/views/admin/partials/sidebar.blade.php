@@ -254,6 +254,38 @@
                     </a>
                     @endadmin
                 </li>
+
+                <!-- Reports -->
+<li class="nav-item">
+    <a href="#" class="nav-link" data-bs-target="#reportsDropdown" role="button"
+        data-bs-toggle="collapse" aria-expanded="false">
+        <i class="nav-icon fas fa-chart-bar"></i>
+        <p>Reports</p>
+    </a>
+
+    <ul class="nav nav-treeview collapse" id="reportsDropdown">
+        <li class="nav-item">
+            <a href="{{ route('reports.outliers') }}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Outliers</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('reports.classifications') }}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Classifications</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('reports.clusters') }}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Clusters</p>
+            </a>
+        </li>
+    </ul>
+</li>
             </ul>
         </nav>
     </div>

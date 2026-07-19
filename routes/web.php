@@ -183,12 +183,12 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 
-        Route::prefix('reports')->group(function () {
-            Route::get('/outliers', [ReportController::class, 'outliers']);
-            Route::get('/classifications', [ReportController::class, 'classifications']);
-            Route::get('/classify/{employee}', [ReportController::class, 'classify']);
-            Route::get('/clusters', [ReportController::class, 'clusters']);
-        });
+       Route::prefix('reports')->name('reports.')->group(function () {
+    Route::get('/outliers', [ReportController::class, 'outliers'])->name('outliers');
+    Route::get('/classifications', [ReportController::class, 'classifications'])->name('classifications');
+    Route::get('/clusters', [ReportController::class, 'clusters'])->name('clusters');
+    Route::get('/classify/{employee}', [ReportController::class, 'classify'])->name('classify');
+});
 
 
         // message info

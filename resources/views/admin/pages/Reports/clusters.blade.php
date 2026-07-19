@@ -15,33 +15,33 @@
 
         <div class="card-body">
 
-            <form id="clusterForm" class="row g-3">
+            <form action="{{ url('/reports/clusters') }}" method="GET" class="row g-3">
 
                 <div class="col-md-4">
                     <label class="form-label">Month</label>
 
                     <input
                         type="month"
-                        id="month"
+                        name="month"
                         class="form-control"
-                        value="2026-07">
+                        value="{{ request('month', '2026-07') }}">
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">Clusters (K)</label>
+                    <label class="form-label">Number of Clusters (K)</label>
 
                     <input
                         type="number"
-                        id="k"
+                        name="k"
                         class="form-control"
-                        value="3"
+                        value="{{ request('k', 3) }}"
                         min="2"
                         max="10">
                 </div>
 
                 <div class="col-md-5 d-flex align-items-end">
 
-                    <button class="btn btn-success w-100">
+                    <button type="submit" class="btn btn-success w-100">
                         Generate Clusters
                     </button>
 
@@ -53,76 +53,30 @@
 
     </div>
 
+    @if(isset($clusters))
+
     <div class="card mt-4 shadow-sm">
 
         <div class="card-header d-flex justify-content-between">
 
             <strong>Cluster Result</strong>
 
-            <span>
-                <strong>Inertia:</strong>
-                <span id="inertia">-</span>
-            </span>
+            <strong>
+                Inertia :
+                {{ $inertia }}
+            </strong>
 
         </div>
 
         <div class="card-body">
 
-            <div id="clusterContainer">
-
-                <div class="text-center text-muted py-4">
-                    Click <strong>Generate Clusters</strong>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-@endsection
-
-
-@push('scripts')
-
-<script>
-
-$('#clusterForm').submit(function(e){
-
-    e.preventDefault();
-
-    $.get('/reports/clusters/data',{
-
-        month:$('#month').val(),
-        k:$('#k').val()
-
-    },function(response){
-
-        $('#inertia').text(response.inertia);
-
-        let html='';
-
-        if(Object.keys(response.clusters).length===0){
-
-            html=`
-                <div class="alert alert-warning text-center">
-                    No clustering data found.
-                </div>
-            `;
-
-        }else{
-
-            $.each(response.clusters,function(cluster,employees){
-
-                html+=`
+            @forelse($clusters as $cluster => $employees)
 
                 <div class="card mb-4">
 
                     <div class="card-header bg-primary text-white">
 
-                        <strong>Cluster ${parseInt(cluster)+1}</strong>
+                        <strong>Cluster {{ $cluster + 1 }}</strong>
 
                     </div>
 
@@ -144,31 +98,23 @@ $('#clusterForm').submit(function(e){
 
                             <tbody>
 
-                `;
+                            @foreach($employees as $employee)
 
-                employees.forEach(function(emp){
+                                <tr>
 
-                    html+=`
+                                    <td>{{ $employee['id'] }}</td>
 
-                        <tr>
+                                    <td>{{ $employee['name'] }}</td>
 
-                            <td>${emp.id}</td>
+                                    <td>{{ $employee['features'][0] }}</td>
 
-                            <td>${emp.name}</td>
+                                    <td>{{ number_format($employee['features'][1],2) }}</td>
 
-                            <td>${emp.features.working_hours}</td>
+                                    <td>{{ number_format($employee['features'][2],2) }}</td>
 
-                            <td>${emp.features.salary}</td>
+                                </tr>
 
-                            <td>${emp.features.deduction}</td>
-
-                        </tr>
-
-                    `;
-
-                });
-
-                html+=`
+                            @endforeach
 
                             </tbody>
 
@@ -178,18 +124,20 @@ $('#clusterForm').submit(function(e){
 
                 </div>
 
-                `;
+            @empty
 
-            });
+                <div class="alert alert-warning text-center">
+                    No clusters found.
+                </div>
 
-        }
+            @endforelse
 
-        $('#clusterContainer').html(html);
+        </div>
 
-    });
+    </div>
 
-});
+    @endif
 
-</script>
+</div>
 
-@endpush
+@endsection
