@@ -80,58 +80,52 @@ public function outliers(Request $request): View
      * GET /reports/classify/{employee}?k=3&month=2026-07
      * Requires a `performance_label` column somewhere (not in your migrations yet — flag below).
      */
-    public function classifications()
+public function classifications(
+    Request $request,
+    KNNService $knnService
+): View
 {
+    $employees = Employee::orderBy('name')->get();
+
+    $employee = null;
+    $predictedLabel = null;
+    $k = (int) $request->query('k', 3);
+
+    if ($request->filled('employee')) {
+        $employee = Employee::findOrFail($request->employee);
+
+        $predictedLabel = $knnService->classify(
+            $employee,
+            $request->query('month'),
+            $k
+        );
+    }
+
     return view('admin.pages.Reports.classifications', [
-        'employees' => Employee::orderBy('name')->get()
+        'employees' => $employees,
+        'employee' => $employee,
+        'predicted_label' => $predictedLabel,
+        'k' => $k,
     ]);
 }
-    public function classify(
+   public function classify(
     Request $request,
     Employee $employee,
     KNNService $knnService
 ): View {
 
-    $month = $request->query('month');
-    $k = (int) $request->query('k', 3);
 
-    $rows = $this->metrics->buildFeatures($month);
-
-    $labels = Employee::pluck('salary_structure_id', 'id');
-
-    $dataset = [];
-    $target = null;
-
-    foreach ($rows as $row) {
-
-        $features = array_values($row['features']);
-
-        if ($row['id'] == $employee->id) {
-            $target = $features;
-            continue;
-        }
-
-        if (!empty($labels[$row['id']])) {
-
-            $dataset[] = [
-                'features' => $features,
-                'label' => $labels[$row['id']],
-            ];
-        }
-    }
-
-    $prediction = $knnService->predict(
-        $dataset,
-        $target,
-        $k
+    $prediction = $knnService->classify(
+        $employee,
+        $request->query('month'),
+        (int) $request->query('k', 3)
     );
-
-   return view('admin.pages.Reports.classifications', [
-    'id' => $employee->id,
-    'name' => $employee->name,
-    'predicted_label' => $prediction,
-    'k' => $k,
-]);
+    return view('admin.pages.Reports.classifications', [
+        'employee' => $employee,
+         'employees' => Employee::orderBy('name')->get(),
+        'predicted_label' => $prediction,
+        'k' => (int) $request->query('k', 3),
+    ]);
 }
 
     /**
@@ -180,5 +174,9 @@ public function outliers(Request $request): View
     'centroids' => $result['centroids'],
     'clusters' => $clusters,
 ]);
+}
+private function employees()
+{
+    return Employee::orderBy('name')->get();
 }
 }

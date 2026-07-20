@@ -7,60 +7,65 @@
     <div class="card shadow-sm">
 
         <div class="card-header">
-            <h4>
+            <h4 class="mb-0">
                 <i class="fas fa-user-check"></i>
-                KNN Employee Classification
+                Employee Classification (KNN)
             </h4>
         </div>
 
         <div class="card-body">
 
-            <form id="classificationForm" class="row g-3">
+            <form method="GET" action="{{ route('reports.classifications') }}">
 
-                <div class="col-md-5">
+                <div class="row g-3">
 
-                    <label class="form-label">Employee</label>
+                    <div class="col-md-5">
+                        <label class="form-label">Employee</label>
 
-                    <select class="form-control" id="employee">
+                        <select class="form-control" name="employee">
 
-                        @foreach($employees as $employee)
-                            <option value="{{ $employee->id }}">
-                                {{ $employee->name }}
-                            </option>
-                        @endforeach
+                            @foreach($employees as $emp)
 
-                    </select>
+                                <option value="{{ $emp->id }}"
+                                    {{ request('employee') == $emp->id ? 'selected' : '' }}>
 
-                </div>
+                                    {{ $emp->name }}
 
-                <div class="col-md-3">
+                                </option>
 
-                    <label class="form-label">Month</label>
+                            @endforeach
 
-                    <input type="month"
-                           class="form-control"
-                           id="month"
-                           value="2026-07">
+                        </select>
+                    </div>
 
-                </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Month</label>
 
-                <div class="col-md-2">
+                        <input
+                            type="month"
+                            class="form-control"
+                            name="month"
+                            value="{{ request('month', now()->format('Y-m')) }}">
+                    </div>
 
-                    <label class="form-label">K Value</label>
+                    <div class="col-md-2">
+                        <label class="form-label">K Value</label>
 
-                    <input type="number"
-                           class="form-control"
-                           id="k"
-                           value="3"
-                           min="1">
+                        <input
+                            type="number"
+                            class="form-control"
+                            name="k"
+                            value="{{ request('k', 3) }}"
+                            min="1">
+                    </div>
 
-                </div>
+                    <div class="col-md-2 d-flex align-items-end">
 
-                <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            Classify
+                        </button>
 
-                    <button class="btn btn-primary w-100">
-                        Classify
-                    </button>
+                    </div>
 
                 </div>
 
@@ -70,66 +75,41 @@
 
     </div>
 
-    <div class="card mt-4 shadow-sm">
+    @isset($predicted_label)
 
-        <div class="card-header">
-            Prediction Result
+        <div class="card mt-4 shadow-sm">
+
+            <div class="card-header">
+                Prediction Result
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-bordered">
+
+                    <tr>
+                        <th width="250">Employee</th>
+                        <td>{{ $employee->name }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Predicted Class</th>
+                        <td>{{ $predicted_label }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>K Value</th>
+                        <td>{{ $k }}</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
         </div>
 
-        <div class="card-body">
-
-            <table class="table table-bordered">
-
-                <tr>
-                    <th width="250">Employee</th>
-                    <td id="employeeName">-</td>
-                </tr>
-
-                <tr>
-                    <th>Predicted Class</th>
-                    <td id="prediction">-</td>
-                </tr>
-
-                <tr>
-                    <th>K Value</th>
-                    <td id="kvalue">-</td>
-                </tr>
-
-            </table>
-
-        </div>
-
-    </div>
+    @endisset
 
 </div>
 
 @endsection
-
-@push('scripts')
-
-<script>
-
-$('#classificationForm').submit(function(e){
-
-    e.preventDefault();
-
-    let id = $('#employee').val();
-
-    $.get('/reports/classify/' + id, {
-
-        month: $('#month').val(),
-        k: $('#k').val()
-
-    }, function(response){
-
-        $('#employeeName').text(response.name);
-        $('#prediction').text(response.predicted_label);
-        $('#kvalue').text(response.k);
-
-    });
-
-});
-
-</script>
-
-@endpush

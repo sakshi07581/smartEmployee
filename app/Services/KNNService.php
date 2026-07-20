@@ -3,9 +3,53 @@
 namespace App\Services;
 
 use App\Algorithms\KNN;
+use App\Models\Employee;
 
 class KNNService
 {
+    protected EmployeeMetricsService $metrics;
+
+public function __construct(EmployeeMetricsService $metrics)
+{
+    $this->metrics = $metrics;
+}
+public function classify(
+    Employee $employee,
+    ?string $month = null,
+    int $k = 3
+) {
+
+    $rows = $this->metrics->buildFeatures($month);
+
+    $labels = Employee::pluck('salary_structure_id', 'id');
+
+    $dataset = [];
+    $target = null;
+
+    foreach ($rows as $row) {
+
+        $features = array_values($row['features']);
+
+        if ($row['id'] == $employee->id) {
+            $target = $features;
+            continue;
+        }
+
+        if (isset($labels[$row['id']])) {
+
+            $dataset[] = [
+                'features' => $features,
+                'label' => $labels[$row['id']],
+            ];
+        }
+    }
+
+    if ($target === null) {
+        return null;
+    }
+
+    return $this->predict($dataset, $target, $k);
+}
     /**
      * Normalize dataset using Min-Max scaling.
      */

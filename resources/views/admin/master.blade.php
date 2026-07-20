@@ -199,29 +199,36 @@
         </footer>
 
     </div>
-    <!-- ./wrapper -->
+
     <!-- jQuery -->
-    <script src="{{ asset('admin-assets/plugins/jquery/jquery.min.js') }}"></script>
-    <!-- Bootstrap 4 -->
-    <script src="{{ asset('admin-assets/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/jquery/jquery.min.js') }}"></script>
 
-    <script src="{{ asset('admin-assets/plugins/dropzone/min/dropzone.min.js') }}"></script>
-    <script src={{ asset('admin-assets/plugins/summernote/summernote.min.js') }}></script>
-    <script src={{ asset('admin-assets/plugins/select2/js/select2.min.js') }}></script>
-    <script src={{ asset('admin-assets/js/datetimepicker.js') }}></script>
+<!-- Bootstrap 4 -->
+<script src="{{ asset('admin-assets/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
-    <!-- AdminLTE App -->
-    <script src="{{ asset('admin-assets/js/adminlte.min.js') }}"></script>
-    <!-- AdminLTE for demo purposes -->
-    <script src="js/demo.js"></script>
-    <script type="text/javascript">
-        $.ajaxSetup({
-			headers: {
-				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			}
-		});
+<!-- Plugins -->
+<script src="{{ asset('admin-assets/plugins/dropzone/min/dropzone.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/summernote/summernote.min.js') }}"></script>
+<script src="{{ asset('admin-assets/plugins/select2/js/select2.min.js') }}"></script>
+<script src="{{ asset('admin-assets/js/datetimepicker.js') }}"></script>
 
-        $(document).ready(function() {
+<!-- AdminLTE -->
+<script src="{{ asset('admin-assets/js/adminlte.min.js') }}"></script>
+@stack('scripts')
+
+<!-- Demo (remove in production if unused) -->
+<script src="{{ asset('admin-assets/js/demo.js') }}"></script>
+
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $(document).ready(function () {
+
+        if ($('.summernote').length) {
             $('.summernote').summernote({
                 height: 200,
                 toolbar: [
@@ -234,74 +241,60 @@
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ]
             });
+        }
 
+        if ($('.dropzone').length) {
             $('.dropzone').dropzone({
                 url: "/file/post",
                 maxFilesize: 2,
                 addRemoveLinks: true
             });
+        }
+    });
+</script>
+
+<!-- Extra JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+<!-- Data Tables -->
+<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/simple-datatables/umd/simple-datatables.js"></script>
+
+<!-- Charts -->
+<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/chart.js/Chart.min.js"></script>
+<script src="js/charts-defaults.8a5fcd99.js"></script>
+<script src="js/index-default.50a9efee.js"></script>
+
+<!-- Theme -->
+{{-- <script src="js/theme.87f0a411.js"></script> --}}
+
+<!-- Prism -->
+<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/prism.js"></script>
+<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/plugins/toolbar/prism-toolbar.min.js"></script>
+<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+
+<script>
+    if (window.Prism) {
+        Prism.plugins.NormalizeWhitespace.setDefaults({
+            'remove-trailing': true,
+            'remove-indent': true,
+            'left-trim': true,
+            'right-trim': true,
         });
+    }
+</script>
 
-         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
-    </script>
+@notifyJs
 
-    <!-- JavaScript files-->
-    <script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/bootstrap/js/bootstrap.bundle.min.js">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
-    <!-- Data Tables-->
-    <script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/simple-datatables/umd/simple-datatables.js">
-    </script>
-    <!-- Init Charts on Homepage-->
-    <script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/chart.js/Chart.min.js"></script>
-    <script src="js/charts-defaults.8a5fcd99.js"></script>
-    <script src="js/index-default.50a9efee.js"></script>
+<script>
+    $(function () {
+        setTimeout(function () {
+            $('.loader').fadeOut(30);
+        }, 150);
+    });
+</script>
 
-    {{-- Font Awesome Kit --}}
-    <script src="https://kit.fontawesome.com/5c95e5cc68.js" crossorigin="anonymous"></script>
-
-    <!-- Main Theme JS File-->
-    <script src="js/theme.87f0a411.js"></script>
-    <!-- Prism for syntax highlighting-->
-    <script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/prism.js"></script>
-    <script
-        src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/plugins/normalize-whitespace/prism-normalize-whitespace.min.js">
-    </script>
-    <script
-        src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/plugins/toolbar/prism-toolbar.min.js">
-    </script>
-    <script
-        src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js">
-    </script>
-    <script type="text/javascript">
-        // Optional
-            Prism.plugins.NormalizeWhitespace.setDefaults({
-                'remove-trailing': true,
-                'remove-indent': true,
-                'left-trim': true,
-                'right-trim': true,
-            });
-    </script>
-
-    @notifyJs
-
-    <!-- FontAwesome CSS - loading as last, so it doesn't block rendering-->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
-        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-    <script>
-        $(function() {
-            setTimeout(() => {
-                $('.loader').fadeOut(30); // Set an extremely quick fade-out time (e.g., 10 milliseconds)
-            }, 150); // Adjust the initial delay as needed
-        });
-    </script>
-
-    @stack('yourJsCode')
-
-
-    @stack('scripts')
+@stack('yourJsCode')
 </body>
 
 </html>
