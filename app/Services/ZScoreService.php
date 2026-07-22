@@ -6,34 +6,28 @@ use App\Algorithms\ZScore;
 
 class ZScoreService
 {
-    /**
-     * Detect outliers from any numeric dataset.
-     *
-     * @param array $values Numeric values to analyze.
-     * @param array|null $keys Optional identifiers corresponding to each value.
-     * @param float $threshold Z-score threshold.
-     *
-     * @return array
-     */
-    public function detect(array $values, ?array $keys = null, float $threshold = 3.0): array
-    {
-        if (empty($values)) {
-            return [];
-        }
+    public static function detectEmployees(
+        array $rows,
+        int $fieldIndex,
+        float $threshold = 3.0
+    ): array {
 
-        $keys ??= array_keys($values);
-        $values = array_map('floatval', array_values($values));
+        $values = array_column(
+            array_map(fn ($row) => $row['features'], $rows),
+            $fieldIndex
+        );
 
         $outliers = ZScore::detectOutliers($values, $threshold);
 
         $result = [];
 
-        foreach ($outliers as $index => $outlier) {
+        foreach ($outliers as $index => $item) {
+
             $result[] = [
-                'key' => $keys[$index] ?? $index,
-                'index' => $index,
-                'value' => $outlier['value'],
-                'z' => round($outlier['z'], 3),
+                'id' => $rows[$index]['id'],
+                'name' => $rows[$index]['name'],
+                'value' => $item['value'],
+                'z' => round($item['z'], 3),
             ];
         }
 

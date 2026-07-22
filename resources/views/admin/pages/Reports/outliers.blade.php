@@ -5,6 +5,7 @@
 <div class="container py-4">
 
     <div class="card shadow-sm">
+
         <div class="card-header">
             <h4 class="mb-0">
                 <i class="fas fa-chart-line"></i>
@@ -14,48 +15,75 @@
 
         <div class="card-body">
 
-            <form id="outlierForm" class="row g-3">
+            <form method="GET" action="{{ route('reports.outliers') }}">
 
-                <div class="col-md-4">
-                    <label class="form-label">Field</label>
+                <div class="row g-3">
 
-                    <select class="form-select" id="field">
-                        <option value="working_hours">Working Hours</option>
-                        <option value="salary">Salary</option>
-                        <option value="deduction">Deduction</option>
-                    </select>
-                </div>
+                    <div class="col-md-4">
 
-                <div class="col-md-3">
-                    <label class="form-label">Month</label>
+                        <label class="form-label">Field</label>
 
-                    <input
-                        type="month"
-                        id="month"
-                        class="form-control"
-                        value="2026-07">
-                </div>
+                        <select class="form-control" name="field">
 
-                <div class="col-md-2">
-                    <label class="form-label">Threshold</label>
+                            <option value="0"
+                                {{ request('field', 0) == 0 ? 'selected' : '' }}>
+                                Attendance Rate
+                            </option>
 
-                    <input
-                        type="number"
-                        step="0.1"
-                        class="form-control"
-                        id="threshold"
-                        value="3">
-                </div>
+                            <option value="1"
+                                {{ request('field', 1) == 1 ? 'selected' : '' }}>
+                                Working Hours
+                            </option>
 
-                <div class="col-md-3 d-flex align-items-end">
-                    <button class="btn btn-primary w-100">
-                        Detect Outliers
-                    </button>
+                            <option value="2"
+                                {{ request('field') == 2 ? 'selected' : '' }}>
+                                Salary
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="form-label">Month</label>
+
+                        <input
+                            type="month"
+                            class="form-control"
+                            name="month"
+                            value="{{ request('month', now()->format('Y-m')) }}">
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <label class="form-label">Threshold</label>
+
+                        <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            class="form-control"
+                            name="threshold"
+                            value="{{ request('threshold', 3) }}">
+
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end">
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Detect Outliers
+                        </button>
+
+                    </div>
+
                 </div>
 
             </form>
 
         </div>
+
     </div>
 
     <div class="card mt-4 shadow-sm">
@@ -69,21 +97,40 @@
             <table class="table table-bordered table-hover mb-0">
 
                 <thead class="table-light">
-                <tr>
-                    <th width="80">ID</th>
-                    <th>Employee</th>
-                    <th>Value</th>
-                    <th>Z-Score</th>
-                </tr>
+
+                    <tr>
+                        <th width="80">ID</th>
+                        <th>Employee</th>
+                        <th>Value</th>
+                        <th>Z-Score</th>
+                    </tr>
+
                 </thead>
 
-                <tbody id="resultBody">
+                <tbody>
 
-                <tr>
-                    <td colspan="4" class="text-center text-muted py-4">
-                        Click "Detect Outliers"
-                    </td>
-                </tr>
+                @if(empty($outliers))
+
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            No outliers detected.
+                        </td>
+                    </tr>
+
+                @else
+
+                    @foreach($outliers as $item)
+
+                        <tr>
+                            <td>{{ $item['id'] }}</td>
+                            <td>{{ $item['name'] }}</td>
+                            <td>{{ $item['value'] }}</td>
+                            <td>{{ $item['z'] }}</td>
+                        </tr>
+
+                    @endforeach
+
+                @endif
 
                 </tbody>
 
@@ -94,62 +141,5 @@
     </div>
 
 </div>
+
 @endsection
-
-
-@push('scripts')
-<script>
-
-$('#outlierForm').submit(function(e){
-
-    e.preventDefault();
-
-    let field = $('#field').val();
-    let month = $('#month').val();
-    let threshold = $('#threshold').val();
-
-    $.get('/reports/outliers',{
-
-        field:field,
-        month:month,
-        threshold:threshold
-
-    },function(response){
-
-        let html='';
-
-        if(response.outliers.length===0){
-
-            html=`
-                <tr>
-                    <td colspan="4" class="text-center">
-                        No outliers detected.
-                    </td>
-                </tr>
-            `;
-
-        }else{
-
-            response.outliers.forEach(function(item){
-
-                html+=`
-                    <tr>
-                        <td>${item.id}</td>
-                        <td>${item.name}</td>
-                        <td>${item.value}</td>
-                        <td>${item.z}</td>
-                    </tr>
-                `;
-
-            });
-
-        }
-
-        $('#resultBody').html(html);
-
-    });
-v
-});
-
-</script>
-@endpush

@@ -24,5 +24,12 @@ class UserstableSeeder extends Seeder
             'password' => bcrypt('123456789'),
             'image' => $imagePath,
         ]);
+         User::create([
+            'name' => 'Employee Sakshi',
+            'role' => 'Employee',
+            'email' => 'sakshi@employee.com',
+            'password' => bcrypt('123456789'),
+            'image' => $imagePath,
+        ]);
     }
 }
