@@ -75,6 +75,13 @@ class ReportController extends Controller
                 $k
             );
         }
+        // dump($employees);
+        // dump($employee);
+        // dump($request->query('month'));
+        // dump($k);
+        // dump($predictedLabel);
+        // dd('hello');
+
 
         return view('admin.pages.Reports.classifications', [
             'employees' => $employees,
@@ -106,44 +113,42 @@ class ReportController extends Controller
     /**
      * GET /reports/clusters?k=3&month=2026-07
      */
-    public function clusters(
-        Request $request,
-        KMeansService $kMeansService
-    ): View {
+public function clusters(
+    Request $request,
+    KMeansService $kMeansService
+): View {
 
-        $month = $request->query('month');
-        $k = (int) $request->query('k', 3);
+    $month = $request->query('month');
+    $k = (int) $request->query('k', 3);
 
-        $rows = $this->metrics->buildFeatures($month);
+    $rows = $this->metrics->buildFeatures($month);
 
+    $dataset = array_map(function ($row) {
+        return array_values($row['features']);
+    }, $rows);
 
+    $k = min($k, count($dataset));
 
-        $dataset = array_map(function ($row) {
-            return array_values($row['features']);
-        }, $rows);
+    $result = $kMeansService->fitFromDataset($dataset, $k);
 
-        $k = min($k, count($dataset));
+    $clusters = [];
 
-        $result = $kMeansService->fitFromDataset($dataset, $k);
+    foreach ($result['labels'] as $index => $cluster) {
 
-        $clusters = [];
-
-        foreach ($result['labels'] as $index => $cluster) {
-
-            $clusters[$cluster][] = [
-                'id' => $rows[$index]['id'],
-                'name' => $rows[$index]['name'],
-                'features' => $rows[$index]['features'],
-            ];
-        }
-
-        return view('admin.pages.Reports.clusters', [
-            'k' => $k,
-            'inertia' => round($result['inertia'], 2),
-            'centroids' => $result['centroids'],
-            'clusters' => $clusters,
-        ]);
+        $clusters[$cluster][] = [
+            'id' => $rows[$index]['id'],
+            'name' => $rows[$index]['name'],
+            'features' => $rows[$index]['features'],
+        ];
     }
+
+    return view('admin.pages.Reports.clusters', [
+        'k' => $k,
+        'inertia' => round($result['inertia'], 2),
+        'centroids' => $result['centroids'],
+        'clusters' => $clusters,
+    ]);
+}
     private function employees()
     {
         return Employee::orderBy('name')->get();

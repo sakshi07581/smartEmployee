@@ -200,24 +200,43 @@
 
     </div>
 
-    <!-- jQuery -->
+   <!-- jQuery -->
 <script src="{{ asset('admin-assets/plugins/jquery/jquery.min.js') }}"></script>
 
-<!-- Bootstrap 4 -->
+<!-- Bootstrap -->
 <script src="{{ asset('admin-assets/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-
-<!-- Plugins -->
-<script src="{{ asset('admin-assets/plugins/dropzone/min/dropzone.min.js') }}"></script>
-<script src="{{ asset('admin-assets/plugins/summernote/summernote.min.js') }}"></script>
-<script src="{{ asset('admin-assets/plugins/select2/js/select2.min.js') }}"></script>
-<script src="{{ asset('admin-assets/js/datetimepicker.js') }}"></script>
 
 <!-- AdminLTE -->
 <script src="{{ asset('admin-assets/js/adminlte.min.js') }}"></script>
-@stack('scripts')
 
-<!-- Demo (remove in production if unused) -->
-<script src="{{ asset('admin-assets/js/demo.js') }}"></script>
+<!-- Dropzone -->
+<script src="{{ asset('admin-assets/plugins/dropzone/min/dropzone.min.js') }}"></script>
+
+<!-- Summernote -->
+<script src="{{ asset('admin-assets/plugins/summernote/summernote.min.js') }}"></script>
+
+<!-- Select2 -->
+<script src="{{ asset('admin-assets/plugins/select2/js/select2.min.js') }}"></script>
+
+<!-- Datetime Picker -->
+<script src="{{ asset('admin-assets/js/datetimepicker.js') }}"></script>
+
+<!-- js-cookie -->
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+
+<!-- Simple DataTables -->
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/umd/simple-datatables.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+
+<!-- Prism -->
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/toolbar/prism-toolbar.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+
+@stack('scripts')
 
 <script>
     $.ajaxSetup({
@@ -226,7 +245,7 @@
         }
     });
 
-    $(document).ready(function () {
+    $(function () {
 
         if ($('.summernote').length) {
             $('.summernote').summernote({
@@ -250,50 +269,23 @@
                 addRemoveLinks: true
             });
         }
-    });
-</script>
 
-<!-- Extra JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+        if (window.Prism) {
+            Prism.plugins.NormalizeWhitespace.setDefaults({
+                'remove-trailing': true,
+                'remove-indent': true,
+                'left-trim': true,
+                'right-trim': true,
+            });
+        }
 
-<!-- Data Tables -->
-<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/simple-datatables/umd/simple-datatables.js"></script>
-
-<!-- Charts -->
-<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/chart.js/Chart.min.js"></script>
-<script src="js/charts-defaults.8a5fcd99.js"></script>
-<script src="js/index-default.50a9efee.js"></script>
-
-<!-- Theme -->
-{{-- <script src="js/theme.87f0a411.js"></script> --}}
-
-<!-- Prism -->
-<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/prism.js"></script>
-<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
-<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/plugins/toolbar/prism-toolbar.min.js"></script>
-<script src="https://d19m59y37dris4.cloudfront.net/bubbly/1-3-2/vendor/prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
-
-<script>
-    if (window.Prism) {
-        Prism.plugins.NormalizeWhitespace.setDefaults({
-            'remove-trailing': true,
-            'remove-indent': true,
-            'left-trim': true,
-            'right-trim': true,
-        });
-    }
-</script>
-
-@notifyJs
-
-<script>
-    $(function () {
         setTimeout(function () {
-            $('.loader').fadeOut(30);
+            $('.loader').fadeOut(150);
         }, 150);
     });
 </script>
 
+@notifyJs
 @stack('yourJsCode')
 </body>
 

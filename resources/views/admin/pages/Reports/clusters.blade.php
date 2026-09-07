@@ -4,65 +4,94 @@
 
 <div class="container py-4">
 
-    <div class="card shadow-sm">
 
-        <div class="card-header">
-            <h4 class="mb-0">
-                <i class="fas fa-project-diagram"></i>
-                K-Means Employee Clustering
-            </h4>
-        </div>
+{{-- ============================================================
+    K-Means Configuration
+============================================================= --}}
+<div class="card shadow-sm">
 
-        <div class="card-body">
+    <div class="card-header">
+        <h4 class="mb-0">
+            <i class="fas fa-project-diagram"></i>
+            Employee Clustering Analysis (K-Means)
+        </h4>
+    </div>
 
-            <form action="{{ url('/reports/clusters') }}" method="GET" class="row g-3">
+    <div class="card-body">
 
-                <div class="col-md-4">
-                    <label class="form-label">Month</label>
+        <form action="{{ url('/reports/clusters') }}" method="GET" class="row g-3">
 
-                    <input
-                        type="month"
-                        name="month"
-                        class="form-control"
-                        value="{{ request('month', '2026-07') }}">
-                </div>
+            {{-- Month --}}
+            <div class="col-md-4">
 
-                <div class="col-md-3">
-                    <label class="form-label">Number of Clusters (K)</label>
+                <label class="form-label">
+                    Month
+                </label>
 
-                    <input
-                        type="number"
-                        name="k"
-                        class="form-control"
-                        value="{{ request('k', 3) }}"
-                        min="2"
-                        max="10">
-                </div>
+                <input
+                    type="month"
+                    name="month"
+                    class="form-control"
+                    value="{{ request('month', now()->format('Y-m')) }}"
+                    required
+                >
 
-                <div class="col-md-5 d-flex align-items-end">
+            </div>
 
-                    <button type="submit" class="btn btn-success w-100">
-                        Generate Clusters
-                    </button>
+            {{-- K --}}
+            <div class="col-md-3">
 
-                </div>
+                <label class="form-label">
+                    Number of Groups (K)
+                </label>
 
-            </form>
+                <input
+                    type="number"
+                    name="k"
+                    class="form-control"
+                    value="{{ request('k', 3) }}"
+                    min="2"
+                    max="10"
+                    required
+                >
 
-        </div>
+            </div>
+
+            {{-- Submit --}}
+            <div class="col-md-5 d-flex align-items-end">
+
+                <button
+                    type="submit"
+                    class="btn btn-success w-100"
+                >
+                    <i class="fas fa-project-diagram"></i>
+                    Analyze Employees
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 
-    @if(isset($clusters))
+</div>
+
+
+{{-- ============================================================
+    Cluster Results
+============================================================= --}}
+@if(isset($clusters))
 
     <div class="card mt-4 shadow-sm">
 
         <div class="card-header d-flex justify-content-between">
 
-            <strong>Cluster Result</strong>
+            <strong>
+                Employee Grouping Results
+            </strong>
 
             <strong>
-                Inertia :
+                Inertia:
                 {{ $inertia }}
             </strong>
 
@@ -74,9 +103,16 @@
 
                 <div class="card mb-4">
 
+                    {{-- Cluster Name --}}
                     <div class="card-header bg-primary text-white">
 
-                        <strong>Cluster {{ $cluster + 1 }}</strong>
+                        <strong>
+                            {{ $clusterNames[$cluster] ?? 'Employee Group' }}
+                        </strong>
+
+                        <span class="float-end">
+                            {{ count($employees) }} Employees
+                        </span>
 
                     </div>
 
@@ -89,32 +125,44 @@
                                 <tr>
                                     <th width="80">ID</th>
                                     <th>Employee</th>
-                                    <th>Working Hours</th>
+                                    <th>Attendance Rate</th>
+                                    <th>Avg. Working Hours</th>
                                     <th>Salary</th>
-                                    <th>Deduction</th>
                                 </tr>
 
                             </thead>
 
                             <tbody>
 
-                            @foreach($employees as $employee)
+                                @foreach($employees as $employee)
 
-                                <tr>
+                                    <tr>
 
-                                    <td>{{ $employee['id'] }}</td>
+                                        <td>
+                                            {{ $employee['id'] }}
+                                        </td>
 
-                                    <td>{{ $employee['name'] }}</td>
+                                        <td>
+                                            {{ $employee['name'] }}
+                                        </td>
 
-                                    <td>{{ $employee['features'][0] }}</td>
+                                        <td>
+                                            {{ number_format($employee['features'][0], 2) }}%
+                                        </td>
 
-                                    <td>{{ number_format($employee['features'][1],2) }}</td>
+                                        <td>
+                                            {{ number_format($employee['features'][1], 2) }}
+                                            hours
+                                        </td>
 
-                                    <td>{{ number_format($employee['features'][2],2) }}</td>
+                                        <td>
+                                            Rs.
+                                            {{ number_format($employee['features'][2], 2) }}
+                                        </td>
 
-                                </tr>
+                                    </tr>
 
-                            @endforeach
+                                @endforeach
 
                             </tbody>
 
@@ -127,7 +175,7 @@
             @empty
 
                 <div class="alert alert-warning text-center">
-                    No clusters found.
+                    No employee groups found.
                 </div>
 
             @endforelse
@@ -136,7 +184,8 @@
 
     </div>
 
-    @endif
+@endif
+
 
 </div>
 

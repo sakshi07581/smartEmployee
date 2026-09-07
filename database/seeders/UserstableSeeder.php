@@ -26,7 +26,7 @@ class UserstableSeeder extends Seeder
         ]);
          User::create([
             'name' => 'Employee Sakshi',
-            'role' => 'Employee',
+            'role' => 'employee',
             'email' => 'sakshi@employee.com',
             'password' => bcrypt('123456789'),
             'image' => $imagePath,

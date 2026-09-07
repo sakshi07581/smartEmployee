@@ -4,52 +4,60 @@ namespace App\Services;
 
 use App\Algorithms\KNN;
 use App\Models\Employee;
+use App\Models\SalaryStructure;
 
 class KNNService
 {
     protected EmployeeMetricsService $metrics;
 
-public function __construct(EmployeeMetricsService $metrics)
-{
-    $this->metrics = $metrics;
-}
-public function classify(
-    Employee $employee,
-    ?string $month = null,
-    int $k = 3
-) {
-
-    $rows = $this->metrics->buildFeatures($month);
-
-    $labels = Employee::pluck('salary_structure_id', 'id');
-
-    $dataset = [];
-    $target = null;
-
-    foreach ($rows as $row) {
-
-        $features = array_values($row['features']);
-
-        if ($row['id'] == $employee->id) {
-            $target = $features;
-            continue;
-        }
-
-        if (isset($labels[$row['id']])) {
-
-            $dataset[] = [
-                'features' => $features,
-                'label' => $labels[$row['id']],
-            ];
-        }
+    public function __construct(EmployeeMetricsService $metrics)
+    {
+        $this->metrics = $metrics;
     }
 
-    if ($target === null) {
-        return null;
+    public function classify(
+        Employee $employee,
+        ?string $month = null,
+        int $k = 3
+    ): ?SalaryStructure {
+
+        $rows = $this->metrics->buildFeatures($month);
+
+        $labels = Employee::pluck('salary_structure_id', 'id');
+
+        $dataset = [];
+        $target = null;
+
+        foreach ($rows as $row) {
+
+            $features = array_values($row['features']);
+
+            if ($row['id'] == $employee->id) {
+                $target = $features;
+                continue;
+            }
+
+            if (isset($labels[$row['id']])) {
+                $dataset[] = [
+                    'features' => $features,
+                    'label' => $labels[$row['id']],
+                ];
+            }
+        }
+
+        if ($target === null || empty($dataset)) {
+            return null;
+        }
+
+        $predictedSalaryStructureId = $this->predict(
+            $dataset,
+            $target,
+            $k
+        );
+
+        return SalaryStructure::find($predictedSalaryStructureId);
     }
 
-    return $this->predict($dataset, $target, $k);
-}
     /**
      * Normalize dataset using Min-Max scaling.
      */
@@ -78,6 +86,7 @@ public function classify(
         foreach ($dataset as &$row) {
             foreach ($row['features'] as $i => $value) {
                 $range = $maxs[$i] - $mins[$i];
+
                 $row['features'][$i] = $range == 0
                     ? 0
                     : ($value - $mins[$i]) / $range;
@@ -91,8 +100,11 @@ public function classify(
         ];
     }
 
-    protected function normalizeFeatures(array $features, array $mins, array $maxs): array
-    {
+    protected function normalizeFeatures(
+        array $features,
+        array $mins,
+        array $maxs
+    ): array {
         foreach ($features as $i => $value) {
             $range = $maxs[$i] - $mins[$i];
 
@@ -104,8 +116,11 @@ public function classify(
         return $features;
     }
 
-    public function predict(array $dataset, array $target, int $k = 3)
-    {
+    public function predict(
+        array $dataset,
+        array $target,
+        int $k = 3
+    ) {
         $normalized = $this->normalize($dataset);
 
         $dataset = $normalized['dataset'];
