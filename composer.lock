@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a7aac392ef6c596e914693cd2219f42",
+    "content-hash": "dbbfa81d0646ec3580255e10e6026c75",
     "packages": [
         {
             "name": "brick/math",
@@ -3432,6 +3432,54 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.2"
             },
             "time": "2025-12-14T04:43:48+00:00"
+        },
+        {
+            "name": "roshan-dhungana/route-commands",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dhunganaroshan341/Route-Commands-Composer.git",
+                "reference": "c7a0e5cc63f7214812144d86e8f197b6c9c0ca19"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dhunganaroshan341/Route-Commands-Composer/zipball/c7a0e5cc63f7214812144d86e8f197b6c9c0ca19",
+                "reference": "c7a0e5cc63f7214812144d86e8f197b6c9c0ca19",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "RoshanDhungana\\RouteCommands\\RouteCommandsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "RoshanDhungana\\RouteCommands\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Roshan Dhungana",
+                    "email": "dhunganaroshan341@gmail.com"
+                }
+            ],
+            "description": "A Laravel package for executing Artisan commands from a browser-based interface",
+            "support": {
+                "issues": "https://github.com/dhunganaroshan341/Route-Commands-Composer/issues",
+                "source": "https://github.com/dhunganaroshan341/Route-Commands-Composer/tree/v1.1.0"
+            },
+            "time": "2026-09-08T10:19:21+00:00"
         },
         {
             "name": "symfony/clock",
@@ -8567,5 +8615,5 @@
         "php": "^8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

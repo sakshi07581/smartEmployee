@@ -9,7 +9,7 @@ class ZScoreService
     public static function detectEmployees(
         array $rows,
         int $fieldIndex,
-        float $threshold = 3.0
+        float $threshold = 1.5
     ): array {
 
         $values = array_column(
@@ -17,7 +17,10 @@ class ZScoreService
             $fieldIndex
         );
 
-        $outliers = ZScore::detectOutliers($values, $threshold);
+        $outliers = ZScore::detectOutliers(
+            $values,
+            $threshold
+        );
 
         $result = [];
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Algorithms\KMeans;
 use App\Algorithms\KNN;
 use App\Algorithms\ZScore;
+use App\Models\Department;
 use App\Models\Employee;
 use App\Services\EmployeeMetricsService;
 use App\Services\KMeansService;
@@ -47,6 +48,7 @@ class ReportController extends Controller
             'fieldIndex' => $fieldIndex,
             'threshold' => $threshold,
             'month' => $month,
+            'departments'=>Department::all(),
             'outliers' => $result,
         ]);
     }
@@ -141,7 +143,11 @@ public function clusters(
             'features' => $rows[$index]['features'],
         ];
     }
-
+// dump($k);
+// dump($result);
+// dump($clusters);
+// dump('centorids:' . json_encode($result['centroids']));
+// dd("hello");
     return view('admin.pages.Reports.clusters', [
         'k' => $k,
         'inertia' => round($result['inertia'], 2),

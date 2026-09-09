@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             PayrollSeeder::class,
             ProvidentFundSeeder::class,
             LeaveTypeSeeder::class,
+            EmployeeLeaveSeeder::class,
+            TaskSeeder::class,
         ]);
 
     }

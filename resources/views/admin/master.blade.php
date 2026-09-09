@@ -136,6 +136,11 @@
             }
             display_c7();
     </script>
+
+
+
+{{-- glass stylle --}}
+{{-- @include('admin.style') --}}
 </head>
 
 <body class="hold-transition sidebar-mini">

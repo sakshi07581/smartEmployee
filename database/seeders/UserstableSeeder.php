@@ -20,7 +20,7 @@ class UserstableSeeder extends Seeder
         User::create([
             'name' => 'sakshi karn',
             'role' => 'Admin',
-            'email' => 'admin@gmail.com',
+            'email' => 'smartemployee@gmail.com',
             'password' => bcrypt('123456789'),
             'image' => $imagePath,
         ]);
